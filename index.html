@@ -1,0 +1,192 @@
+<html>
+  <head>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+      .gridlines line {
+        stroke: #bbb;
+      }
+      .gridlines .domain {
+        stroke: none;
+      }
+    </style>
+  </head>
+
+  <body style="background-color: pink">
+    <h1>Project 1</h1>
+
+    <div id="project1svg1"></div>
+    <script>
+      // parameters
+      let width = 600;
+      let height = 600;
+      let padding = 20;
+      // create the svg canvas
+      let project1svg1 = d3
+        .select("div#project1svg1")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .style("background-color", "white");
+      // load data
+      d3.csv("./flavors_of_cacao_pre.csv").then((entries) => {
+        // data pre-processing
+        entries.forEach((entry) => {
+          entry["Cocoa Percent"] = parseFloat(entry["Cocoa Percent"]);
+          entry["REF"] = Number(entry["REF"]);
+          entry["Rating"] = Number(entry["Rating"]);
+          entry["Review Date"] = Number(entry["Review Date"]);
+        });
+
+        // get extents and show
+        const reviewDateExtent = d3.extent(
+          entries,
+          (entry) => entry["Review Date"]
+        );
+        const cocoaPercentExtent = d3.extent(
+          entries,
+          (entry) => entry["Cocoa Percent"]
+        );
+        const ratingExtent = d3.extent(entries, (entry) => entry["Rating"]);
+        console.log(reviewDateExtent); // [2006, 2017]
+        console.log(cocoaPercentExtent); // [42, 100]
+        console.log(ratingExtent); // [1, 5]
+        // create scales
+        // -- x scale for review date
+        let reviewDateScale = d3
+          .scaleLinear()
+          .domain([2005, 2018])
+          .range([0, width - padding * 2]);
+        // -- y scale for cocoa percent
+        let cocoaPercentScale = d3
+          .scaleLinear()
+          .domain([0, 100])
+          .range([height - padding, padding]);
+        // -- radius scale for rating
+        let radiusScale = d3.scaleLinear().domain([0, 6]).range([0, 20]);
+        // build line elements
+        // -- bottom gridlines
+        let bottomGridlines = d3
+          .axisBottom(reviewDateScale)
+          .tickSize(height - padding * 2)
+          // .tickFormat("")
+          .ticks(14);
+        project1svg1
+          .append("g")
+          .attr("transform", `translate(${padding}, ${padding})`)
+          .attr("class", "x gridlines")
+          .call(bottomGridlines);
+        // -- left gridlines
+        let leftGridlines = d3
+          .axisLeft(cocoaPercentScale)
+          .tickSize(-width + padding * 2)
+          // .tickFormat("")
+          .ticks(10);
+        project1svg1
+          .append("g")
+          .attr("transform", `translate(${padding},0)`)
+          .attr("class", "y gridlines")
+          .call(leftGridlines);
+        // create circles for points in the dataset
+        entries.forEach((entry) => {
+          project1svg1
+            .append("circle")
+            .attr(
+              "cx",
+              Math.floor(reviewDateScale(entry["Review Date"])) + padding
+            )
+            .attr(
+              "cy",
+              Math.floor(cocoaPercentScale(entry["Cocoa Percent"])) + padding
+            )
+            .attr("r", radiusScale(entry["Rating"]))
+            .style("fill", "darkblue")
+            .style("opacity", 0.4);
+        });
+      });
+    </script>
+
+
+    <br/>
+
+
+
+
+
+    <div id="project1svg2"></div>
+    <script>
+      // create the svg canvas
+      let project1svg2 = d3
+        .select("div#project1svg2")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .style("background-color", "white");
+      // load data
+      d3.csv("./flavors_of_cacao_pre.csv").then((entries) => {
+        // data pre-processing
+        entries.forEach((entry) => {
+          entry["Cocoa Percent"] = parseFloat(entry["Cocoa Percent"]);
+          entry["REF"] = Number(entry["REF"]);
+          entry["Rating"] = Number(entry["Rating"]);
+          entry["Review Date"] = Number(entry["Review Date"]);
+        });
+
+        // reviewDateExtent [2006, 2017]
+        // cocoaPercentExtent [42, 100]
+        // ratingExtent [1, 5]
+
+        // create scales
+        // -- x scale for cocoa percent
+        let cocoaPercentScale = d3
+          .scaleLinear()
+          .domain([0, 100])
+          .range([0, width - padding * 2]);
+        // -- y scale for rating
+        let ratingScale = d3
+          .scaleLinear()
+          .domain([0, 6])
+          .range([height - padding, padding]);
+        // build line elements
+        // -- bottom gridlines
+        let bottomGridlines = d3
+          .axisBottom(cocoaPercentScale)
+          .tickSize(height - padding * 2)
+          // .tickFormat("")
+          .ticks(10);
+        project1svg2
+          .append("g")
+          .attr("transform", `translate(${padding}, ${padding})`)
+          .attr("class", "x gridlines")
+          .call(bottomGridlines);
+        // -- left gridlines
+        let leftGridlines = d3
+          .axisLeft(ratingScale)
+          .tickSize(-width + padding * 2)
+          // .tickFormat("")
+          .ticks(6);
+        project1svg2
+          .append("g")
+          .attr("transform", `translate(${padding},0)`)
+          .attr("class", "y gridlines")
+          .call(leftGridlines);
+        // create circles for points in the dataset
+        entries.forEach((entry) => {
+          project1svg2
+            .append("circle")
+            .attr(
+              "cx",
+              Math.floor(cocoaPercentScale(entry["Cocoa Percent"])) + padding
+            )
+            .attr(
+              "cy",
+              Math.floor(ratingScale(entry["Rating"])) + padding
+            )
+            .attr("r", 3)
+            .style("fill", "darkblue")
+            .style("opacity", 0.4);
+        });
+      });
+    </script>
+  </body>
+</html>
