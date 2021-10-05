@@ -1,243 +1,387 @@
 <html>
 
 <head>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 
-  <style>
-    .gridlines line {
-      stroke: #bbb;
-    }
-
-    .gridlines .domain {
-      stroke: none;
-    }
-  </style>
+    <style>
+        .gridlines line {
+            stroke: #bbb;
+        }
+        
+        .gridlines .domain {
+            stroke: none;
+        }
+    </style>
 </head>
 
 <body style="background-color: pink">
-  <h1>Project 1</h1>
-  <p>
-  <div id="project1svg1"></div>
-  <script>
-    // parameters
-    let width = 600;
-    let height = 600;
-    let padding = 20;
-    // create the svg canvas
-    let project1svg1 = d3
-      .select("div#project1svg1")
-      .append("svg")
-      .attr("width", width)
-      .attr("height", height)
-      .style("background-color", "white");
-    // load data
-    d3.csv("./flavors_of_cacao_pre.csv").then((entries) => {
-      // data pre-processing
-      entries.forEach((entry) => {
-        entry["Cocoa Percent"] = parseFloat(entry["Cocoa Percent"]);
-        entry["REF"] = Number(entry["REF"]);
-        entry["Rating"] = Number(entry["Rating"]);
-        entry["Review Date"] = String(entry["Review Date"]);
-      });
+    <h1>Project 1</h1>
+    <hr />
+    <p>this pic can tell nothing. red: rating &gt; 3; green: rating &lt; 3;</p>
+    <div id="project1svg1"></div>
+    <script>
+        // parameters
+        let width = 600;
+        let height = 600;
+        let padding = 20;
+        // create the svg canvas
+        let project1svg1 = d3
+            .select("div#project1svg1")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .style("background-color", "white");
+        // load data
+        d3.csv("./flavors_of_cacao_pre.csv").then((entries) => {
+            // data pre-processing
+            entries.forEach((entry) => {
+                entry["Cocoa Percent"] = parseFloat(entry["Cocoa Percent"]);
+                entry["REF"] = Number(entry["REF"]);
+                entry["Rating"] = Number(entry["Rating"]);
+                entry["Review Date"] = Number(entry["Review Date"]);
+            });
+            // get extents and show
+            const reviewDateExtent = d3.extent(
+                entries,
+                (entry) => entry["Review Date"]
+            );
+            const cocoaPercentExtent = d3.extent(
+                entries,
+                (entry) => entry["Cocoa Percent"]
+            );
+            const ratingExtent = d3.extent(entries, (entry) => entry["Rating"]);
+            // console.log(reviewDateExtent); // [2006, 2017]
+            // console.log(cocoaPercentExtent); // [42, 100]
+            // console.log(ratingExtent); // [1, 5]
+            // create scales
+            // -- x scale for review date
+            let reviewDateScale = d3
+                .scaleLinear()
+                .domain([2005, 2018])
+                .range([padding, width - padding]);
+            // -- y scale for cocoa percent
+            let cocoaPercentScale = d3
+                .scaleLinear()
+                .domain([40, 100])
+                .range([height - padding, padding]);
+            // -- radius scale for rating
+            let radiusScale = d3.scaleLinear().domain([0, 6]).range([0, 20]);
+            // build line elements
+            // -- bottom gridlines
+            let bottomGridlines = d3
+                .axisBottom(reviewDateScale)
+                .tickSize(height - padding * 2)
+                .ticks()
+                .ticks(14);
+            project1svg1
+                .append("g")
+                .attr("transform", `translate(0, ${padding})`)
+                .attr("class", "x gridlines")
+                .call(bottomGridlines);
+            // -- left gridlines
+            let leftGridlines = d3
+                .axisLeft(cocoaPercentScale)
+                .tickSize(-width + padding * 2)
+                .ticks(5);
+            project1svg1
+                .append("g")
+                .attr("transform", `translate(${padding},0)`)
+                .attr("class", "y gridlines")
+                .call(leftGridlines);
+            // create circles for points in the dataset
+            entries.forEach((entry) => {
+                project1svg1
+                    .append("circle")
+                    .attr("cx", Math.floor(reviewDateScale(entry["Review Date"])))
+                    .attr("cy", Math.floor(cocoaPercentScale(entry["Cocoa Percent"])))
+                    .attr("r", 5)
+                    .style("fill", () => {
+                        if (entry["Rating"] > 3) {
+                            return "green";
+                        } else {
+                            return "red";
+                        }
+                    })
+                    .style("opacity", 0.3);
+            });
+        });
+    </script>
+    <hr />
+    <p>
+        this pic can show that the rating has no relationship with cocoa percent
+    </p>
+    <div id="project1svg2"></div>
+    <script>
+        // create the svg canvas
+        let project1svg2 = d3
+            .select("div#project1svg2")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .style("background-color", "white");
+        // load data
+        d3.csv("./flavors_of_cacao_pre.csv").then((entries) => {
+            // data pre-processing
+            entries.forEach((entry) => {
+                entry["Cocoa Percent"] = parseFloat(entry["Cocoa Percent"]);
+                entry["REF"] = Number(entry["REF"]);
+                entry["Rating"] = Number(entry["Rating"]);
+                entry["Review Date"] = Number(entry["Review Date"]);
+            });
+            // create scales
+            // -- x scale for cocoa percent
+            let cocoaPercentScale = d3
+                .scaleLinear()
+                .domain([40, 100])
+                .range([padding, width - padding]);
+            // -- y scale for rating
+            let ratingScale = d3
+                .scaleLinear()
+                .domain([0, 6])
+                .range([height - padding, padding]);
+            // build line elements
+            // -- bottom gridlines
+            let bottomGridlines = d3
+                .axisBottom(cocoaPercentScale)
+                .tickSize(height - padding * 2)
+                .ticks(6);
+            project1svg2
+                .append("g")
+                .attr("transform", `translate(0, ${padding})`)
+                .attr("class", "x gridlines")
+                .call(bottomGridlines);
+            // -- left gridlines
+            let leftGridlines = d3
+                .axisLeft(ratingScale)
+                .tickSize(-width + padding * 2)
+                .ticks(6);
+            project1svg2
+                .append("g")
+                .attr("transform", `translate(${padding},0)`)
+                .attr("class", "y gridlines")
+                .call(leftGridlines);
+            // create circles for points in the dataset
+            entries.forEach((entry) => {
+                project1svg2
+                    .append("circle")
+                    .attr("cx", cocoaPercentScale(entry["Cocoa Percent"]))
+                    .attr("cy", ratingScale(entry["Rating"]))
+                    .attr("r", 3)
+                    .style("fill", "darkblue")
+                    .style("opacity", 0.4);
+            });
+        });
+    </script>
+    <hr />
+    <!-- <p>top ten country location where the best chocolate from</p> -->
+    <div id="project1svg3"></div>
+    <script>
+        // create the svg canvas
+        let project1svg3 = d3
+            .select("div#project1svg3")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .style("background-color", "white");
+        // load data
+        d3.csv("./flavors_of_cacao_pre.csv").then((entries) => {
+            // Part 1 - data processing
+            // used to store data
+            let beanTypeMap = new Map();
+            let broadBeanOriginMap = new Map();
+            let companyMap = new Map();
+            let companyLocationMap = new Map();
+            // data pre-processing
+            entries.forEach((entry) => {
+                entry["Cocoa Percent"] = parseFloat(entry["Cocoa Percent"]);
+                entry["REF"] = Number(entry["REF"]);
+                entry["Rating"] = Number(entry["Rating"]);
+                entry["Review Date"] = Number(entry["Review Date"]);
+            });
+            // iterate all entry to finish map
+            // >> map-key: name
+            // >> map-value: [count, sum)]
+            entries.forEach((entry) => {
+                // bean type
+                let beanType = entry["Bean Type"];
+                if (beanType !== "") {
+                    if (beanTypeMap.has(beanType)) {
+                        beanTypeMap.get(beanType)[0]++;
+                        beanTypeMap.get(beanType)[1] += entry["Rating"];
+                    } else {
+                        beanTypeMap.set(beanType, [1, entry["Rating"], 0]);
+                    }
+                }
+                // broad bean origin
+                let broadBeanOrigin = entry["Broad Bean Origin"];
+                if (broadBeanOrigin !== "") {
+                    if (broadBeanOriginMap.has(broadBeanOrigin)) {
+                        broadBeanOriginMap.get(broadBeanOrigin)[0]++;
+                        broadBeanOriginMap.get(broadBeanOrigin)[1] += entry["Rating"];
+                    } else {
+                        broadBeanOriginMap.set(broadBeanOrigin, [1, entry["Rating"], 0]);
+                    }
+                }
+                // company
+                let company = entry["Company (Maker-if known)"];
+                if (company !== "") {
+                    if (companyMap.has(company)) {
+                        companyMap.get(company)[0]++;
+                        companyMap.get(company)[1] += entry["Rating"];
+                    } else {
+                        companyMap.set(company, [1, entry["Rating"], 0]);
+                    }
+                }
+                // company location
+                let companyLocation = entry["Company Location"];
+                if (companyLocation !== "") {
+                    if (companyLocationMap.has(companyLocation)) {
+                        companyLocationMap.get(companyLocation)[0]++;
+                        companyLocationMap.get(companyLocation)[1] += entry["Rating"];
+                    } else {
+                        companyLocationMap.set(companyLocation, [1, entry["Rating"], 0]);
+                    }
+                }
+            });
+            // calculate average
+            beanTypeMap.forEach((entry) => {
+                entry[2] = Math.floor(entry[1] / entry[0] * 100) / 100;
+            });
+            broadBeanOriginMap.forEach((entry) => {
+                entry[2] = Math.floor(entry[1] / entry[0] * 100) / 100;
+            });
+            companyMap.forEach((entry) => {
+                entry[2] = Math.floor(entry[1] / entry[0] * 100) / 100;
+            });
+            companyLocationMap.forEach((entry) => {
+                entry[2] = Math.floor(entry[1] / entry[0] * 100) / 100;
+            });
+            // store into array and sort and print
+            // >> bean type
+            let beanTypeArray = [];
+            beanTypeMap.forEach((entry, key) => {
+                beanTypeArray.push([key, entry[0], entry[1], entry[2]]);
+            });
+            beanTypeArray.sort((a, b) => b[3] - a[3]);
+            // using threshold
+            let beanTypeThreshold = 0;
+            let beanTypeTop10 = [];
+            beanTypeArray.forEach(entry => {
+                if (entry[1] >= beanTypeThreshold && beanTypeTop10.length < 10) {
+                    beanTypeTop10.push(entry);
+                }
+            });
+            console.log(beanTypeTop10);
+            console.log("========================================================");
+            console.log("bean type ranking");
+            console.log(beanTypeArray);
+            // >> broad bean origin
+            let broadBeanOriginArray = [];
+            broadBeanOriginMap.forEach((entry, key) => {
+                broadBeanOriginArray.push([key, entry[0], entry[1], entry[2]]);
+            });
+            broadBeanOriginArray.sort((a, b) => b[3] - a[3]);
+            // using threshold
+            let broadBeanOriginThreshold = 0;
+            let broadBeanOriginTop10 = [];
+            broadBeanOriginArray.forEach(entry => {
+                if (entry[1] >= broadBeanOriginThreshold && broadBeanOriginTop10.length < 10) {
+                    broadBeanOriginTop10.push(entry);
+                }
+            });
+            console.log(broadBeanOriginTop10);
+            console.log("========================================================");
+            console.log("broad bean origin ranking");
+            console.log(broadBeanOriginArray);
+            // >> company
+            let companyArray = [];
+            companyMap.forEach((entry, key) => {
+                companyArray.push([key, entry[0], entry[1], entry[2]]);
+            });
+            companyArray.sort((a, b) => b[3] - a[3]);
+            // using threshold
+            let companyThreshold = 0;
+            let companyTop10 = [];
+            companyArray.forEach(entry => {
+                if (entry[1] >= companyThreshold && companyTop10.length < 10) {
+                    companyTop10.push(entry);
+                }
+            });
+            console.log(companyTop10);
+            console.log("========================================================");
+            console.log("company ranking");
+            console.log(companyArray);
+            // >> company location
+            let companyLocationArray = [];
+            companyLocationMap.forEach((entry, key) => {
+                companyLocationArray.push([key, entry[0], entry[1], entry[2]]);
+            });
+            companyLocationArray.sort((a, b) => b[3] - a[3]);
+            // using threshold
+            let companyLocationThreshold = 0;
+            let companyLocationTop10 = [];
+            companyLocationArray.forEach(entry => {
+                if (entry[1] >= companyLocationThreshold && companyLocationTop10.length < 10) {
+                    companyLocationTop10.push(entry);
+                }
+            });
+            console.log(companyLocationTop10);
+            console.log("========================================================");
+            console.log("company location ranking");
+            console.log(companyLocationArray);
 
-      // get extents and show
-      const reviewDateExtent = d3.extent(
-        entries,
-        (entry) => entry["Review Date"]
-      );
-      const cocoaPercentExtent = d3.extent(
-        entries,
-        (entry) => entry["Cocoa Percent"]
-      );
-      const ratingExtent = d3.extent(entries, (entry) => entry["Rating"]);
-      console.log(reviewDateExtent); // [2006, 2017]
-      console.log(cocoaPercentExtent); // [42, 100]
-      console.log(ratingExtent); // [1, 5]
-      // create scales
-      // -- x scale for review date
-      let reviewDateScale = d3
-        .scaleLinear()
-        .domain([2005, 2018])
-        .range([0, width - padding * 2]);
-      // -- y scale for cocoa percent
-      let cocoaPercentScale = d3
-        .scaleLinear()
-        .domain([35, 100])
-        .range([height - padding, padding]);
-      // -- radius scale for rating
-      let radiusScale = d3.scaleLinear().domain([0, 6]).range([0, 20]);
-      // build line elements
-      // -- bottom gridlines
-      let bottomGridlines = d3
-        .axisBottom(reviewDateScale)
-        .tickSize(height - padding * 2)
-        // .tickFormat("")
-        .ticks(14);
-      project1svg1
-        .append("g")
-        .attr("transform", `translate(${padding}, ${padding})`)
-        .attr("class", "x gridlines")
-        .call(bottomGridlines);
-      // -- left gridlines
-      let leftGridlines = d3
-        .axisLeft(cocoaPercentScale)
-        .tickSize(-width + padding * 2)
-        // .tickFormat("")
-        .ticks(10);
-      project1svg1
-        .append("g")
-        .attr("transform", `translate(${padding},0)`)
-        .attr("class", "y gridlines")
-        .call(leftGridlines);
-      // create circles for points in the dataset
-      entries.forEach((entry) => {
-        project1svg1
-          .append("circle")
-          .attr(
-            "cx",
-            Math.floor(reviewDateScale(entry["Review Date"])) + padding
-          )
-          .attr(
-            "cy",
-            Math.floor(cocoaPercentScale(entry["Cocoa Percent"])) + padding
-          )
-          .attr("r", radiusScale(entry["Rating"]))
-          .style("fill", "darkblue")
-          .style("opacity", 0.4);
-      });
-    });
-  </script>
-  </p>
-
-  <p>
-  <div id="project1svg2"></div>
-  <script>
-    // create svg canvas
-    let project1svg2 = d3
-      .select("div#project1svg2")
-      .append("svg")
-      .attr("width", width)
-      .attr("height", height)
-      .style("background-color", "white");
-    // load data
-    d3.csv("./flavors_of_cacao_pre.csv").then((entries) => {
-      // data pre-processing
-      entries.forEach((entry) => {
-        entry["Company Location"] = String(entry["Company Location"]);
-        entry["Rating"] = Number(entry["Rating"]);
-      });
-
-      // create scales
-      // -- x scale for rating
-      let ratingScale = d3
-        .scaleLinear()
-        .domain([0, 6])
-        .range([0, width - padding * 2]);
-
-      // create a map holding the occurence of company location and average
-      const map1 = new Map();
-      entries.forEach((entry) => {
-        if (map1.has(entry['Company Location'])) {
-          var currAvg = map1.get(entry['Company Location'])['avg'];
-          var currNum = map1.get(entry['Company Location'])['number'];
-          var newAvg = (currAvg * currNum + entry['Rating']) / (currNum + 1);
-          map1.set(entry['Company Location'], { number: currNum + 1, avg: newAvg });
-        }
-        else {
-          map1.set(entry['Company Location'], { number: 1, avg: entry['Rating'] });
-        }
-      });
-      console.log(map1);
-
-      // sort map by value
-      map1 = new Map([...map1.entries()].sort((a, b) => b.value['avg'] - a.value['avg']));
-      console.log(map1);
-      // Map(4) {"c" => 4, "a" => 3, "d" => 2, "b" => 1}
-    });
-  </script>
-  </p>
-
-  <br />
+            // part 2 - draw charts
+            // we have got the data, let's draw charts
+            // create scales
+            // -- x scale for rating
+            let ratingScale = d3
+                .scaleLinear()
+                .domain([0, 5])
+                .range([padding, width - padding]);
+            // build line elements
+            // -- bottom gridlines: for rating ticks
+            let bottomGridlines = d3
+                .axisBottom(ratingScale)
+                .tickSize(height - padding * 2)
+                .tickFormat("")
+                .ticks(6);
+            project1svg3
+                .append("g")
+                .attr("transform", `translate(0, ${padding})`)
+                .attr("class", "x gridlines")
+                .call(bottomGridlines);
+            // create rects for each company location in companyLocationTop10
+            // beanTypeTop10
+            // broadBeanOriginTop10
+            // companyTop10
+            // companyLocationTop10
+            companyLocationTop10.forEach((entry, idx) => {
+                project1svg3
+                    .append("rect")
+                    .attr("x", padding)
+                    .attr("y", (idx + 1) * (height - padding * 2) / 11)
+                    .attr("width", ratingScale(entry[3]))
+                    .attr("height", 0.5 * (height - padding * 2) / 11)
+                    .style("fill", "darkblue")
+                    .style("opacity", 0.4);
+                project1svg3
+                    .append("text")
+                    .attr("x", padding)
+                    .attr("y", (idx + 1) * (height - padding * 2) / 11)
+                    .text(entry[0]);
+                project1svg3
+                    .append("text")
+                    .attr("x", ratingScale(entry[3]))
+                    .attr("y", (idx + 1) * (height - padding * 2) / 11)
+                    .text(entry[3]);
+            });
 
 
 
-
-
-  <div id="project1svg3"></div>
-  <script>
-    // create the svg canvas
-    let project1svg3 = d3
-      .select("div#project1svg3")
-      .append("svg")
-      .attr("width", width)
-      .attr("height", height)
-      .style("background-color", "white");
-    // load data
-    d3.csv("./flavors_of_cacao_pre.csv").then((entries) => {
-      // data pre-processing
-      entries.forEach((entry) => {
-        entry["Cocoa Percent"] = parseFloat(entry["Cocoa Percent"]);
-        entry["REF"] = Number(entry["REF"]);
-        entry["Rating"] = Number(entry["Rating"]);
-        entry["Review Date"] = Number(entry["Review Date"]);
-      });
-
-      // reviewDateExtent [2006, 2017]
-      // cocoaPercentExtent [42, 100]
-      // ratingExtent [1, 5]
-
-      // create scales
-      // -- x scale for cocoa percent
-      let cocoaPercentScale = d3
-        .scaleLinear()
-        .domain([0, 100])
-        .range([0, width - padding * 2]);
-      // -- y scale for rating
-      let ratingScale = d3
-        .scaleLinear()
-        .domain([0, 6])
-        .range([height - padding, padding]);
-      // build line elements
-      // -- bottom gridlines
-      let bottomGridlines = d3
-        .axisBottom(cocoaPercentScale)
-        .tickSize(height - padding * 2)
-        // .tickFormat("")
-        .ticks(10);
-      project1svg2
-        .append("g")
-        .attr("transform", `translate(${padding}, ${padding})`)
-        .attr("class", "x gridlines")
-        .call(bottomGridlines);
-      // -- left gridlines
-      let leftGridlines = d3
-        .axisLeft(ratingScale)
-        .tickSize(-width + padding * 2)
-        // .tickFormat("")
-        .ticks(6);
-      project1svg2
-        .append("g")
-        .attr("transform", `translate(${padding},0)`)
-        .attr("class", "y gridlines")
-        .call(leftGridlines);
-      // create circles for points in the dataset
-      entries.forEach((entry) => {
-        project1svg2
-          .append("circle")
-          .attr(
-            "cx",
-            Math.floor(cocoaPercentScale(entry["Cocoa Percent"])) + padding
-          )
-          .attr(
-            "cy",
-            Math.floor(ratingScale(entry["Rating"])) + padding
-          )
-          .attr("r", 3)
-          .style("fill", "darkblue")
-          .style("opacity", 0.4);
-      });
-    });
-  </script>
+        });
+    </script>
 </body>
+
+</html>
 
 </html>
