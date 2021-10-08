@@ -7,23 +7,24 @@
         .gridlines line {
             stroke: #bbb;
         }
-        
+
         .gridlines .domain {
             stroke: none;
         }
     </style>
 </head>
 
-<body style="background-color: pink">
+<body style="background-color: lightgrey">
     <h1>Project 1</h1>
     <hr />
-    <p>this pic can tell nothing. red: rating &gt; 3; green: rating &lt; 3;</p>
+    <!-- this is chart 1 -->
+    <p>green: rating &gt; 3; red: rating &lt; 3;</p>
     <div id="project1svg1"></div>
     <script>
         // parameters
         let width = 600;
         let height = 600;
-        let padding = 20;
+        let padding = 75;
         // create the svg canvas
         let project1svg1 = d3
             .select("div#project1svg1")
@@ -31,6 +32,37 @@
             .attr("width", width)
             .attr("height", height)
             .style("background-color", "white");
+        // title and label
+        // -- title
+        project1svg1
+            .append("text")
+            .attr("x", width / 2)
+            .attr("y", padding / 2)
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .style("font-family", "Times")
+            .style("fill", "#19230C")
+            .style("font-size", "24px")
+            .text("Chocolate Quality In Year vs Cocoa Percentage");
+        // --y axis label
+        project1svg1
+            .append("text")
+            .attr("transform", "translate(" + padding / 2 + "," + height / 2 + ") rotate(270)")
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .style("font-family", "Helvetica")
+            .style("fill", "#19230C")
+            .text("Cocoa Percent %");
+        // --x axis label
+        project1svg1
+            .append("text")
+            .attr("x", width / 2)
+            .attr("y", height - padding / 2)
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .style("font-family", "Helvetica")
+            .style("fill", "#19230C")
+            .text("Year");
         // load data
         d3.csv("./flavors_of_cacao_pre.csv").then((entries) => {
             // data pre-processing
@@ -71,7 +103,8 @@
             let bottomGridlines = d3
                 .axisBottom(reviewDateScale)
                 .tickSize(height - padding * 2)
-                .ticks()
+                .tickFormat(d3.format(""))
+                .tickPadding(10)
                 .ticks(14);
             project1svg1
                 .append("g")
@@ -82,6 +115,7 @@
             let leftGridlines = d3
                 .axisLeft(cocoaPercentScale)
                 .tickSize(-width + padding * 2)
+                .tickPadding(10)
                 .ticks(5);
             project1svg1
                 .append("g")
@@ -95,18 +129,13 @@
                     .attr("cx", Math.floor(reviewDateScale(entry["Review Date"])))
                     .attr("cy", Math.floor(cocoaPercentScale(entry["Cocoa Percent"])))
                     .attr("r", 5)
-                    .style("fill", () => {
-                        if (entry["Rating"] > 3) {
-                            return "green";
-                        } else {
-                            return "red";
-                        }
-                    })
+                    .style("fill", () => entry["Rating"] > 3 ? "green" : "red")
                     .style("opacity", 0.3);
             });
         });
     </script>
     <hr />
+    <!-- this is chart 2 -->
     <p>
         this pic can show that the rating has no relationship with cocoa percent
     </p>
@@ -119,6 +148,37 @@
             .attr("width", width)
             .attr("height", height)
             .style("background-color", "white");
+        // title and label
+        // -- title
+        project1svg2
+            .append("text")
+            .attr("x", width / 2)
+            .attr("y", padding / 2)
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .style("font-family", "Times")
+            .style("fill", "#19230C")
+            .style("font-size", "24px")
+            .text("Rating vs Cocoa Percent");
+        // --y axis label
+        project1svg2
+            .append("text")
+            .attr("transform", "translate(" + padding / 2 + "," + height / 2 + ") rotate(270)")
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .style("font-family", "Helvetica")
+            .style("fill", "#19230C")
+            .text("Rating");
+        // --x axis label
+        project1svg2
+            .append("text")
+            .attr("x", width / 2)
+            .attr("y", height - padding / 2)
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .style("font-family", "Helvetica")
+            .style("fill", "#19230C")
+            .text("Cocoa Percent %");
         // load data
         d3.csv("./flavors_of_cacao_pre.csv").then((entries) => {
             // data pre-processing
@@ -144,6 +204,7 @@
             let bottomGridlines = d3
                 .axisBottom(cocoaPercentScale)
                 .tickSize(height - padding * 2)
+                .tickPadding(10)
                 .ticks(6);
             project1svg2
                 .append("g")
@@ -154,6 +215,7 @@
             let leftGridlines = d3
                 .axisLeft(ratingScale)
                 .tickSize(-width + padding * 2)
+                .tickPadding(10)
                 .ticks(6);
             project1svg2
                 .append("g")
@@ -166,14 +228,17 @@
                     .append("circle")
                     .attr("cx", cocoaPercentScale(entry["Cocoa Percent"]))
                     .attr("cy", ratingScale(entry["Rating"]))
-                    .attr("r", 3)
-                    .style("fill", "darkblue")
-                    .style("opacity", 0.4);
+                    .attr("r", 5)
+                    .style("fill", () => entry["Rating"] > 3 ? "green" : "red")
+                    .style("opacity", 0.6);
             });
         });
     </script>
     <hr />
-    <!-- <p>top ten country location where the best chocolate from</p> -->
+    <!-- this is chart 3 -->
+    <!-- <p>
+        yield rate over year
+    </p>
     <div id="project1svg3"></div>
     <script>
         // create the svg canvas
@@ -183,6 +248,147 @@
             .attr("width", width)
             .attr("height", height)
             .style("background-color", "white");
+        // title and label
+        // -- title
+        project1svg3
+            .append("text")
+            .attr("x", width / 2)
+            .attr("y", padding / 2)
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .style("font-family", "Times")
+            .style("fill", "#19230C")
+            .style("font-size", "24px")
+            .text("Yeild Rate Over Year");
+        // --y axis label
+        project1svg3
+            .append("text")
+            .attr("transform", "translate(" + padding / 2 + "," + height / 2 + ") rotate(270)")
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .style("font-family", "Helvetica")
+            .style("fill", "#19230C")
+            .text("Percent %");
+        // --x axis label
+        project1svg3
+            .append("text")
+            .attr("x", width / 2)
+            .attr("y", height - padding / 2)
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .style("font-family", "Helvetica")
+            .style("fill", "#19230C")
+            .text("Year");
+        // load data
+        d3.csv("./flavors_of_cacao_pre.csv").then((entries) => {
+            // data pre-processing
+            entries.forEach((entry) => {
+                entry["Cocoa Percent"] = parseFloat(entry["Cocoa Percent"]);
+                entry["REF"] = Number(entry["REF"]);
+                entry["Rating"] = Number(entry["Rating"]);
+                entry["Review Date"] = Number(entry["Review Date"]);
+            });
+            let yeildRateOverYear = [];
+            for (let i = 2006; i <= 2017; i++) {
+                yeildRateOverYear.push([i, 0, 0, 0, 0]);
+            }
+            console.log(yeildRateOverYear);
+            // create scales
+            // -- x scale for rating
+            let yearScale = d3
+                .scaleLinear()
+                .domain([2005, 2018])
+                .range([padding, width - padding]);
+            // -- y scale for good rate
+            let goodRateScale = d3
+                .scaleLinear()
+                .domain([0, 100])
+                .range([height / 2, padding]);
+            // -- y scale for bad rate
+            let badRateScale = d3
+                .scaleLinear()
+                .domain([0, 100])
+                .range([height / 2, height - padding]);
+            // build line elements
+            // -- bottom gridlines
+            let bottomGridlines = d3
+                .axisBottom(yearScale)
+                .tickSize(height - padding * 2)
+                .tickPadding(10)
+                .ticks(14);
+            project1svg3
+                .append("g")
+                .attr("transform", `translate(0, ${padding})`)
+                .attr("class", "x gridlines")
+                .call(bottomGridlines);
+            // -- left gridlines for good
+            let leftGridlines = d3
+                .axisLeft(goodRateScale)
+                .tickSize(-width + padding * 2)
+                .tickPadding(10)
+                .ticks(5);
+            project1svg3
+                .append("g")
+                .attr("transform", `translate(${padding},0)`)
+                .attr("class", "y gridlines")
+                .call(leftGridlines);
+            // -- left gridlines for good
+            let leftGridlines2 = d3
+                .axisLeft(badRateScale)
+                .tickSize(-width + padding * 2)
+                .tickPadding(10)
+                .ticks(5);
+            project1svg3
+                .append("g")
+                .attr("transform", `translate(${padding},0)`)
+                .attr("class", "y gridlines")
+                .call(leftGridlines2);
+            // create rects for points in the dataset
+            // entries.forEach((entry) => {
+            //     project1svg3
+            //         .append("circle")
+            //         .attr("cx", cocoaPercentScale(entry["Cocoa Percent"]))
+            //         .attr("cy", ratingScale(entry["Rating"]))
+            //         .attr("r", 5)
+            //         .style("fill", () => entry["Rating"] > 3 ? "green" : "red")
+            //         .style("opacity", 0.6);
+            // });
+        });
+    </script>
+    <hr /> -->
+    <!-- this is chart 4 -->
+    <p>top ten coumpany locations where the best chocolate bars are from</p>
+    <div id="project1svg4"></div>
+    <script>
+        // create the svg canvas
+        let project1svg4 = d3
+            .select("div#project1svg4")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .style("background-color", "white");
+        // title and label
+        // -- title
+        project1svg4
+            .append("text")
+            .attr("x", width / 2)
+            .attr("y", padding / 2)
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .style("font-family", "Times")
+            .style("fill", "#19230C")
+            .style("font-size", "24px")
+            .text("Top 10 Countries Where The Best Chocolate Is Produced");
+        // --x axis label
+        project1svg4
+            .append("text")
+            .attr("x", width / 2)
+            .attr("y", height - padding / 2)
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .style("font-family", "Helvetica")
+            .style("fill", "#19230C")
+            .text("Rating");
         // load data
         d3.csv("./flavors_of_cacao_pre.csv").then((entries) => {
             // Part 1 - data processing
@@ -271,10 +477,9 @@
                     beanTypeTop10.push(entry);
                 }
             });
-            console.log(beanTypeTop10);
-            console.log("========================================================");
             console.log("bean type ranking");
             console.log(beanTypeArray);
+            console.log(beanTypeTop10);
             // >> broad bean origin
             let broadBeanOriginArray = [];
             broadBeanOriginMap.forEach((entry, key) => {
@@ -289,10 +494,9 @@
                     broadBeanOriginTop10.push(entry);
                 }
             });
-            console.log(broadBeanOriginTop10);
-            console.log("========================================================");
             console.log("broad bean origin ranking");
             console.log(broadBeanOriginArray);
+            console.log(broadBeanOriginTop10);
             // >> company
             let companyArray = [];
             companyMap.forEach((entry, key) => {
@@ -307,10 +511,9 @@
                     companyTop10.push(entry);
                 }
             });
-            console.log(companyTop10);
-            console.log("========================================================");
             console.log("company ranking");
             console.log(companyArray);
+            console.log(companyTop10);
             // >> company location
             let companyLocationArray = [];
             companyLocationMap.forEach((entry, key) => {
@@ -325,10 +528,9 @@
                     companyLocationTop10.push(entry);
                 }
             });
-            console.log(companyLocationTop10);
-            console.log("========================================================");
             console.log("company location ranking");
             console.log(companyLocationArray);
+            console.log(companyLocationTop10);
 
             // part 2 - draw charts
             // we have got the data, let's draw charts
@@ -343,9 +545,9 @@
             let bottomGridlines = d3
                 .axisBottom(ratingScale)
                 .tickSize(height - padding * 2)
-                .tickFormat("")
+                .tickPadding(10)
                 .ticks(6);
-            project1svg3
+            project1svg4
                 .append("g")
                 .attr("transform", `translate(0, ${padding})`)
                 .attr("class", "x gridlines")
@@ -356,27 +558,31 @@
             // companyTop10
             // companyLocationTop10
             companyLocationTop10.forEach((entry, idx) => {
-                project1svg3
+                project1svg4
                     .append("rect")
                     .attr("x", padding)
-                    .attr("y", (idx + 1) * (height - padding * 2) / 11)
-                    .attr("width", ratingScale(entry[3]))
+                    .attr("y", padding + (2 * idx + 1) * (height - padding * 2) / 21)
+                    .attr("width", ratingScale(entry[3]) - padding)
                     .attr("height", 0.5 * (height - padding * 2) / 11)
-                    .style("fill", "darkblue")
-                    .style("opacity", 0.4);
-                project1svg3
+                    .style("fill", "#915D49")
+                    .style("opacity", 0.6);
+                project1svg4
                     .append("text")
-                    .attr("x", padding)
-                    .attr("y", (idx + 1) * (height - padding * 2) / 11)
+                    .attr("x", padding + 10)
+                    .attr("y", padding + (2 * idx + 1.5) * (height - padding * 2) / 21)
+                    .attr("dominant-baseline", "middle")
+                    .style("font-family", "Helvetica")
+                    .style("fill", "#19230C")
                     .text(entry[0]);
-                project1svg3
+                project1svg4
                     .append("text")
-                    .attr("x", ratingScale(entry[3]))
-                    .attr("y", (idx + 1) * (height - padding * 2) / 11)
+                    .attr("x", ratingScale(entry[3]) + 5)
+                    .attr("y", padding + (2 * idx + 1.5) * (height - padding * 2) / 21)
+                    .attr("dominant-baseline", "middle")
+                    .style("font-family", "Helvetica")
+                    .style("fill", "#19230C")
                     .text(entry[3]);
             });
-
-
 
         });
     </script>
