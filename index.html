@@ -15,10 +15,9 @@
 </head>
 
 <body style="background-color: lightgrey">
-    <h1>Project 1</h1>
+    <h1>What Factors Determine A Highly Rated Chocolate Bar?</h1>
     <hr />
-    <!-- this is chart 1 -->
-    <p>green: rating &gt; 3; red: rating &lt; 3;</p>
+    <!-- this is visualization 1 -->
     <div id="project1svg1"></div>
     <script>
         // parameters
@@ -63,6 +62,28 @@
             .style("font-family", "Helvetica")
             .style("fill", "#19230C")
             .text("Year");
+        // legend label red
+        project1svg1
+            .append("text")
+            .attr("x", width / 4 * 3)
+            .attr("y", height - padding / 2)
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .style("font-family", "Helvetica")
+            .style("fill", "red")
+            .attr("font-size", "10px")
+            .text("Rating <= 3");
+        // legend label green
+        project1svg1
+            .append("text")
+            .attr("x", width / 4 * 3 + 55)
+            .attr("y", height - padding / 2)
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .style("font-family", "Helvetica")
+            .style("fill", "green")
+            .attr("font-size", "10px")
+            .text("Rating > 3");
         // load data
         d3.csv("./flavors_of_cacao_pre.csv").then((entries) => {
             // data pre-processing
@@ -82,9 +103,6 @@
                 (entry) => entry["Cocoa Percent"]
             );
             const ratingExtent = d3.extent(entries, (entry) => entry["Rating"]);
-            // console.log(reviewDateExtent); // [2006, 2017]
-            // console.log(cocoaPercentExtent); // [42, 100]
-            // console.log(ratingExtent); // [1, 5]
             // create scales
             // -- x scale for review date
             let reviewDateScale = d3
@@ -123,11 +141,18 @@
                 .attr("class", "y gridlines")
                 .call(leftGridlines);
             // create circles for points in the dataset
+            // jitter function
+            function jitter1() {
+                return ((Math.random() * 30) - 15);
+            }
+            function jitter2() {
+                return ((Math.random() * 6) - 3);
+            }
             entries.forEach((entry) => {
                 project1svg1
                     .append("circle")
-                    .attr("cx", Math.floor(reviewDateScale(entry["Review Date"])))
-                    .attr("cy", Math.floor(cocoaPercentScale(entry["Cocoa Percent"])))
+                    .attr("cx", reviewDateScale(entry["Review Date"]) + jitter1())
+                    .attr("cy", cocoaPercentScale(entry["Cocoa Percent"]) + jitter2())
                     .attr("r", 5)
                     .style("fill", () => entry["Rating"] > 3 ? "green" : "red")
                     .style("opacity", 0.3);
@@ -135,10 +160,7 @@
         });
     </script>
     <hr />
-    <!-- this is chart 2 -->
-    <p>
-        this pic can show that the rating has no relationship with cocoa percent
-    </p>
+    <!-- this is visualization 2 -->
     <div id="project1svg2"></div>
     <script>
         // create the svg canvas
@@ -223,11 +245,14 @@
                 .attr("class", "y gridlines")
                 .call(leftGridlines);
             // create circles for points in the dataset
+            function jitter3() {
+                return ((Math.random() * 10) - 5);
+            }
             entries.forEach((entry) => {
                 project1svg2
                     .append("circle")
-                    .attr("cx", cocoaPercentScale(entry["Cocoa Percent"]))
-                    .attr("cy", ratingScale(entry["Rating"]))
+                    .attr("cx", cocoaPercentScale(entry["Cocoa Percent"]) + jitter3())
+                    .attr("cy", ratingScale(entry["Rating"]) + jitter3())
                     .attr("r", 5)
                     .style("fill", () => entry["Rating"] > 3 ? "green" : "red")
                     .style("opacity", 0.6);
@@ -235,129 +260,7 @@
         });
     </script>
     <hr />
-    <!-- this is chart 3 -->
-    <!-- <p>
-        yield rate over year
-    </p>
-    <div id="project1svg3"></div>
-    <script>
-        // create the svg canvas
-        let project1svg3 = d3
-            .select("div#project1svg3")
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height)
-            .style("background-color", "white");
-        // title and label
-        // -- title
-        project1svg3
-            .append("text")
-            .attr("x", width / 2)
-            .attr("y", padding / 2)
-            .attr("text-anchor", "middle")
-            .attr("dominant-baseline", "middle")
-            .style("font-family", "Times")
-            .style("fill", "#19230C")
-            .style("font-size", "24px")
-            .text("Yeild Rate Over Year");
-        // --y axis label
-        project1svg3
-            .append("text")
-            .attr("transform", "translate(" + padding / 2 + "," + height / 2 + ") rotate(270)")
-            .attr("text-anchor", "middle")
-            .attr("dominant-baseline", "middle")
-            .style("font-family", "Helvetica")
-            .style("fill", "#19230C")
-            .text("Percent %");
-        // --x axis label
-        project1svg3
-            .append("text")
-            .attr("x", width / 2)
-            .attr("y", height - padding / 2)
-            .attr("text-anchor", "middle")
-            .attr("dominant-baseline", "middle")
-            .style("font-family", "Helvetica")
-            .style("fill", "#19230C")
-            .text("Year");
-        // load data
-        d3.csv("./flavors_of_cacao_pre.csv").then((entries) => {
-            // data pre-processing
-            entries.forEach((entry) => {
-                entry["Cocoa Percent"] = parseFloat(entry["Cocoa Percent"]);
-                entry["REF"] = Number(entry["REF"]);
-                entry["Rating"] = Number(entry["Rating"]);
-                entry["Review Date"] = Number(entry["Review Date"]);
-            });
-            let yeildRateOverYear = [];
-            for (let i = 2006; i <= 2017; i++) {
-                yeildRateOverYear.push([i, 0, 0, 0, 0]);
-            }
-            console.log(yeildRateOverYear);
-            // create scales
-            // -- x scale for rating
-            let yearScale = d3
-                .scaleLinear()
-                .domain([2005, 2018])
-                .range([padding, width - padding]);
-            // -- y scale for good rate
-            let goodRateScale = d3
-                .scaleLinear()
-                .domain([0, 100])
-                .range([height / 2, padding]);
-            // -- y scale for bad rate
-            let badRateScale = d3
-                .scaleLinear()
-                .domain([0, 100])
-                .range([height / 2, height - padding]);
-            // build line elements
-            // -- bottom gridlines
-            let bottomGridlines = d3
-                .axisBottom(yearScale)
-                .tickSize(height - padding * 2)
-                .tickPadding(10)
-                .ticks(14);
-            project1svg3
-                .append("g")
-                .attr("transform", `translate(0, ${padding})`)
-                .attr("class", "x gridlines")
-                .call(bottomGridlines);
-            // -- left gridlines for good
-            let leftGridlines = d3
-                .axisLeft(goodRateScale)
-                .tickSize(-width + padding * 2)
-                .tickPadding(10)
-                .ticks(5);
-            project1svg3
-                .append("g")
-                .attr("transform", `translate(${padding},0)`)
-                .attr("class", "y gridlines")
-                .call(leftGridlines);
-            // -- left gridlines for good
-            let leftGridlines2 = d3
-                .axisLeft(badRateScale)
-                .tickSize(-width + padding * 2)
-                .tickPadding(10)
-                .ticks(5);
-            project1svg3
-                .append("g")
-                .attr("transform", `translate(${padding},0)`)
-                .attr("class", "y gridlines")
-                .call(leftGridlines2);
-            // create rects for points in the dataset
-            // entries.forEach((entry) => {
-            //     project1svg3
-            //         .append("circle")
-            //         .attr("cx", cocoaPercentScale(entry["Cocoa Percent"]))
-            //         .attr("cy", ratingScale(entry["Rating"]))
-            //         .attr("r", 5)
-            //         .style("fill", () => entry["Rating"] > 3 ? "green" : "red")
-            //         .style("opacity", 0.6);
-            // });
-        });
-    </script>
-    <hr /> -->
-    <!-- this is chart 4 -->
-    <p>top ten coumpany locations where the best chocolate bars are from</p>
+    <!-- this is visualization 3 -->
     <div id="project1svg4"></div>
     <script>
         // create the svg canvas
@@ -378,7 +281,7 @@
             .style("font-family", "Times")
             .style("fill", "#19230C")
             .style("font-size", "24px")
-            .text("Top 10 Regions Where The Best Chocolate Is Produced");
+            .text("Top 10 Regions Where Highest Rated Chocolate Is Produced");
         // --x axis label
         project1svg4
             .append("text")
